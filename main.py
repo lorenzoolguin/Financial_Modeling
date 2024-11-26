@@ -25,8 +25,11 @@ def main(
             model.historical_income_calcs()
             model.revenue_forecast()
             model.gross_profit_forecast()
+            model.cost_of_sales_forecast()
             model.sga_forecast()
             model.r_and_d_forecast()
+            model.operating_profit_forecast()
+            
 
             a = model.future_income
             print(a)
