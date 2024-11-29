@@ -6,11 +6,17 @@ import numpy as np
 
 class FinancialStatementModel:
 
-    def __init__(self, hist_income, growth_rates):
+    def __init__(self, hist_income, hist_bs, hist_cf, growth_rates):
         self.hist_income = hist_income
         self.growth_rates = growth_rates
         self.future_income = pd.DataFrame()
         self.future_income["Year"] = growth_rates["Year"]
+        self.hist_bs = hist_bs
+        self.future_bs = pd.DataFrame()
+        self.future_bs["Year"] = growth_rates["Year"]
+        self.hist_cf = hist_cf
+        self.future_cf = pd.DataFrame()
+        self.future_cf["Year"] = growth_rates["Year"]
 
     def historical_income_calcs(self):
         self.hist_income["Gross_Profit"] = (
@@ -101,3 +107,19 @@ class FinancialStatementModel:
     def cost_of_sales_forecast(self):
         # This has to come after gross profit forecast. It relies on those numbers.
         self.future_income['fut_Cost_of_Sales'] = -1 * (self.future_income['fut_Rev'] - self.future_income['fut_Gross_profit'])
+
+    # this capex forecast grows capex in-line with revenue for X years then keeps capex straight-line after
+    def capex_forecast(self, years_until_SL):
+        new_capex = [self.hist_cf[self.hist_cf["Year"] == self.hist_cf["Year"].max()]['Capital expenditures'].values[0]]
+       
+        for rate in self.growth_rates["Revenue growth"].values:
+            new_year_capex = round((1 + rate) * new_capex[-1])
+            new_capex.append(new_year_capex)
+
+        for ind, ele in enumerate(new_capex):
+            if ind >= years_until_SL+1:
+                new_capex[ind] = new_capex[years_until_SL]
+        
+                
+        self.future_cf['future_capex'] = new_capex[1:]
+
