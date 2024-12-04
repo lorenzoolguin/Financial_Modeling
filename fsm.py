@@ -10,47 +10,47 @@ class FinancialStatementModel:
         self.hist_income = hist_income
         self.growth_rates = growth_rates
         self.future_income = pd.DataFrame()
-        self.future_income["Year"] = growth_rates["Year"]
+        self.future_income["year"] = growth_rates["Year"]
         self.hist_bs = hist_bs
         self.future_bs = pd.DataFrame()
-        self.future_bs["Year"] = growth_rates["Year"]
+        self.future_bs["year"] = growth_rates["Year"]
         self.hist_cf = hist_cf
         self.future_cf = pd.DataFrame()
-        self.future_cf["Year"] = growth_rates["Year"]
+        self.future_cf["year"] = growth_rates["Year"]
 
     def historical_income_calcs(self):
         self.hist_income["Gross_Profit"] = (
-            self.hist_income["Revenue"] + self.hist_income["Cost of sales (enter as -)"]
+            self.hist_income["revenue"] + self.hist_income["cost_of_sales_neg"]
         )
         self.hist_income["Operating_Profit_EBIT"] = (
             self.hist_income["Gross_Profit"]
-            + self.hist_income["Research & development (enter as -)"]
-            + self.hist_income["Selling, general & administrative (enter as -)"]
+            + self.hist_income["r_and_d_neg"]
+            + self.hist_income["sga_neg"]
         )
         self.hist_income["Pretax_Profit"] = (
             self.hist_income["Operating_Profit_EBIT"]
-            + self.hist_income["Interest expense (enter as -)"]
-            + self.hist_income["Interest income"]
-            + self.hist_income["Other expense, net (enter as -)"]
+            + self.hist_income["interest_expense_neg"]
+            + self.hist_income["interest_income"]
+            + self.hist_income["other_expense_net"]
         )
         self.hist_income["Net_Income"] = (
             self.hist_income["Pretax_Profit"]
-            + self.hist_income["Taxes (enter expense as -)"]
+            + self.hist_income["taxes_neg"]
         )
         self.hist_income["EBITDA"] = (
             self.hist_income["Operating_Profit_EBIT"]
-            + self.hist_income["Depreciation & amortization"]
+            + self.hist_income["deprec_amor"]
         )
         self.hist_income["Adj_EBITDA"] = (
-            self.hist_income["EBITDA"] + self.hist_income["Stock based compensation"]
+            self.hist_income["EBITDA"] + self.hist_income["stock_based_comp"]
         )
 
     def revenue_forecast(self):
 
         new_revs = [
             self.hist_income[
-                self.hist_income["Year"] == self.hist_income["Year"].max()
-            ]["Revenue"].values[0]
+                self.hist_income["year"] == self.hist_income["year"].max()
+            ]["revenue"].values[0]
         ]
         for rate in self.growth_rates["Revenue growth"].values:
             new_year_rev = round((1 + rate) * new_revs[-1])
@@ -61,7 +61,7 @@ class FinancialStatementModel:
 
         new_gross_profit = [
             self.hist_income[
-                self.hist_income["Year"] == self.hist_income["Year"].max()
+                self.hist_income["year"] == self.hist_income["year"].max()
             ]["Gross_Profit"].values[0]
         ]
 
@@ -75,8 +75,8 @@ class FinancialStatementModel:
     def sga_forecast(self):
         new_sga = [
             self.hist_income[
-                self.hist_income["Year"] == self.hist_income["Year"].max()
-            ]["Selling, general & administrative (enter as -)"].values[0]
+                self.hist_income["year"] == self.hist_income["year"].max()
+            ]["sga_neg"].values[0]
         ]
 
         for index, rate in enumerate(self.growth_rates["SG&A % of sales"].values):
@@ -89,8 +89,8 @@ class FinancialStatementModel:
     def r_and_d_forecast(self):
         new_RandD = [
             self.hist_income[
-                self.hist_income["Year"] == self.hist_income["Year"].max()
-            ]["Research & development (enter as -)"].values[0]
+                self.hist_income["year"] == self.hist_income["year"].max()
+            ]["r_and_d_neg"].values[0]
         ]
 
         for index, rate in enumerate(self.growth_rates["R&D % of sales"].values):
@@ -110,7 +110,7 @@ class FinancialStatementModel:
 
     # this capex forecast grows capex in-line with revenue for X years then keeps capex straight-line after
     def capex_forecast(self, years_until_SL):
-        new_capex = [self.hist_cf[self.hist_cf["Year"] == self.hist_cf["Year"].max()]['Capital expenditures'].values[0]]
+        new_capex = [self.hist_cf[self.hist_cf["year"] == self.hist_cf["year"].max()]['capex'].values[0]]
        
         for rate in self.growth_rates["Revenue growth"].values:
             new_year_capex = round((1 + rate) * new_capex[-1])
@@ -120,6 +120,7 @@ class FinancialStatementModel:
             if ind >= years_until_SL+1:
                 new_capex[ind] = new_capex[years_until_SL]
         
-                
         self.future_cf['future_capex'] = new_capex[1:]
 
+    def ppe_forecast(self, step_percentage):
+        new_ppe = [self.hist_cf[self.hist_cf["year"] == self.hist_cf["year"].max()]['Capital expenditures'].values[0]]
