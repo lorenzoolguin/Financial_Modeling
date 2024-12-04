@@ -6,9 +6,10 @@ import numpy as np
 
 class FinancialStatementModel:
 
-    def __init__(self, hist_income, hist_bs, hist_cf, growth_rates):
+    def __init__(self, hist_income, hist_bs, hist_cf, other, growth_rates):
         self.hist_income = hist_income
         self.growth_rates = growth_rates
+        self.other = other
         self.future_income = pd.DataFrame()
         self.future_income["year"] = growth_rates["Year"]
         self.hist_bs = hist_bs
@@ -123,4 +124,28 @@ class FinancialStatementModel:
         self.future_cf['future_capex'] = new_capex[1:]
 
     def ppe_forecast(self, step_percentage):
-        new_ppe = [self.hist_cf[self.hist_cf["year"] == self.hist_cf["year"].max()]['Capital expenditures'].values[0]]
+        new_ppe = [self.hist_bs[self.hist_bs["year"] == self.hist_bs["year"].max()]['ppe'].values[0]]
+
+        da_related_ppe_ratio_to_capex = round(self.other['da_related_to_ppe'].values[-1] / (-1 * self.hist_cf['capex'].values[-1]),4)
+        fut_da_related_ppe_ratio = [da_related_ppe_ratio_to_capex]
+        for x in range(self.future_income.shape[0]):
+            new_ratio = fut_da_related_ppe_ratio[-1] + step_percentage
+            fut_da_related_ppe_ratio.append(new_ratio)
+
+        # print(fut_da_related_ppe_ratio)
+        
+        new_da_related_to_ppe = []
+        for x in range(self.future_income.shape[0]):
+            new_value = fut_da_related_ppe_ratio[x+1] * -1 * self.future_cf['future_capex'].values[x]
+            new_da_related_to_ppe.append(new_value)
+
+        # print(new_da_related_to_ppe)
+
+        for x in range(self.future_income.shape[0]):
+            new_ppe.append(new_ppe[x] + (-1*self.future_cf['future_capex'].values[x]) - new_da_related_to_ppe[x])
+
+        # print(new_ppe)
+
+        self.future_bs['future_ppe'] = new_ppe[1:]
+
+

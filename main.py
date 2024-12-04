@@ -21,13 +21,17 @@ def main(
                 "C:/Users/loren/OneDrive/Documents/extra/code_projects/financial_statement_modeling/data/apple_fsm_data.xlsx",
                 sheet_name="Cashflow",
             )
+            other = pd.read_excel(
+                "C:/Users/loren/OneDrive/Documents/extra/code_projects/financial_statement_modeling/data/apple_fsm_data.xlsx",
+                sheet_name="Other",
+            )
 
             growth_rates = pd.read_excel(
                 "C:/Users/loren/OneDrive/Documents/extra/code_projects/financial_statement_modeling/data/growth_rates_margins.xlsx"
             )
 
             model = FinancialStatementModel(
-                hist_income=hist_income, hist_bs=hist_bs, hist_cf=hist_cf, growth_rates=growth_rates
+                hist_income=hist_income, hist_bs=hist_bs, hist_cf=hist_cf, other = other, growth_rates=growth_rates
             )
 
             model.historical_income_calcs()
@@ -39,9 +43,11 @@ def main(
             model.operating_profit_forecast()
 
             model.capex_forecast(years_until_SL=2)
+            model.ppe_forecast(step_percentage=0.02)
+
             
 
-            a = model.future_cf
+            a = model.future_bs
             print(a)
 
         case "sensitivity":
