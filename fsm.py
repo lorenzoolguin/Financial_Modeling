@@ -160,7 +160,7 @@ class FinancialStatementModel:
 
         for x in range(self.future_income.shape[0]):
             d_and_a_not_related_ppe.append(d_and_a_not_ratio_to_rev_avg * self.future_income['fut_Rev'].values[x])
-
+        self.future_cf['fut_d_and_a_not_related'] = d_and_a_not_related_ppe
         # print(d_and_a_not_related_ppe)
 
         future_total_d_and_a = []
@@ -173,4 +173,16 @@ class FinancialStatementModel:
         self.future_income['fut_deprec_amor'] = future_total_d_and_a
 
     def other_non_current_assets_forecast(self):
-        pass
+        new_other_nca = [self.hist_bs[self.hist_bs["year"] == self.hist_bs["year"].max()]['other_non_current_assets'].values[0]]
+        # print(new_other_nca)
+
+        for x in range(self.future_bs.shape[0]):
+            new_other_nca.append(new_other_nca[-1] * (1 + self.growth_rates["Revenue growth"].values[x]))
+
+        self.future_bs['fut_other_non_current_assets'] = new_other_nca[1:]
+
+        additions = []
+        for x in range(self.future_bs.shape[0]):
+            additions.append(new_other_nca[x+1] - new_other_nca[x] + self.future_cf['fut_d_and_a_not_related'].values[x])
+
+        self.future_cf['fut_additions'] = additions

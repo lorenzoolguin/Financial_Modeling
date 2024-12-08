@@ -45,9 +45,10 @@ def main(
             model.capex_forecast(years_until_SL=2)
             model.ppe_forecast(step_percentage=0.02)
             model.deprec_and_amort_forecast()
+            model.other_non_current_assets_forecast()
             
 
-            a = model.future_income
+            a = model.future_cf
             print(a)
 
         case "sensitivity":
