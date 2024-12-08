@@ -44,10 +44,10 @@ def main(
 
             model.capex_forecast(years_until_SL=2)
             model.ppe_forecast(step_percentage=0.02)
-
+            model.deprec_and_amort_forecast()
             
 
-            a = model.future_bs
+            a = model.future_income
             print(a)
 
         case "sensitivity":

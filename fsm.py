@@ -138,6 +138,7 @@ class FinancialStatementModel:
         for x in range(self.future_income.shape[0]):
             new_value = fut_da_related_ppe_ratio[x+1] * -1 * self.future_cf['future_capex'].values[x]
             new_da_related_to_ppe.append(new_value)
+        self.future_cf['d_and_a_ppe'] = new_da_related_to_ppe
 
         # print(new_da_related_to_ppe)
 
@@ -148,4 +149,28 @@ class FinancialStatementModel:
 
         self.future_bs['future_ppe'] = new_ppe[1:]
 
+    def deprec_and_amort_forecast(self):
+        d_and_a_not_related_ppe = []
+        d_and_a_not_ratio_to_rev = []
+        for x in range(self.hist_income.shape[0]):
+            d_and_a_not_ratio_to_rev.append((self.hist_cf['deprec_amor'].values[x] - self.other['da_related_to_ppe'].values[x]) / self.hist_income['revenue'].values[x])
+        # print(d_and_a_not_ratio_to_rev)
+        d_and_a_not_ratio_to_rev_avg = sum(d_and_a_not_ratio_to_rev) / len(d_and_a_not_ratio_to_rev)
 
+
+        for x in range(self.future_income.shape[0]):
+            d_and_a_not_related_ppe.append(d_and_a_not_ratio_to_rev_avg * self.future_income['fut_Rev'].values[x])
+
+        # print(d_and_a_not_related_ppe)
+
+        future_total_d_and_a = []
+        for x in range(self.future_income.shape[0]):
+            future_total_d_and_a.append(d_and_a_not_related_ppe[x] + self.future_cf['d_and_a_ppe'].values[x])
+
+        # print(future_total_d_and_a)
+
+        self.future_cf['fut_deprec_amor'] = future_total_d_and_a
+        self.future_income['fut_deprec_amor'] = future_total_d_and_a
+
+    def other_non_current_assets_forecast(self):
+        pass
