@@ -186,7 +186,7 @@ class FinancialStatementModel:
 
         additions = []
         for x in range(self.future_bs.shape[0]):
-            additions.append(new_other_nca[x+1] - new_other_nca[x] + self.future_cf['fut_d_and_a_not_related'].values[x])
+            additions.append(-1 * (new_other_nca[x+1] - new_other_nca[x] + self.future_cf['fut_d_and_a_not_related'].values[x]))
 
         self.future_cf['fut_additions'] = additions
 
@@ -206,4 +206,30 @@ class FinancialStatementModel:
 
         self.future_cf['fut_stock_based_comp'] = new_sbc[1:]
         self.future_income['fut_stock_based_comp'] = new_sbc[1:]
+
+    def ar_forecast(self):
+        new_ar = [self.hist_bs[self.hist_bs["year"] == self.hist_bs["year"].max()]['accounts_receivable'].values[0]]
+        # print(new_ar)
+
+        for x in range(self.future_bs.shape[0]):
+            new_ar.append(new_ar[-1] * (1 + self.growth_rates["Revenue growth"].values[x]))
+
+        self.future_bs['fut_accounts_receivable'] = new_ar[1:]
+
+    def inventory_forecast(self):
+        # grows inventories in line with cogs growth
+        # print(new_inv)
+        cogs_val = [self.hist_income[self.hist_income["year"] == self.hist_income["year"].max()]["cost_of_sales_neg"].values[0]]
+        for x in range(self.future_bs.shape[0]):
+            cogs_val.append(self.future_income['fut_Cost_of_Sales'].values[x])
+        
+        cogs_growth= []
+        for x in range(self.future_bs.shape[0]):
+            cogs_growth.append((cogs_val[x+1] / cogs_val[x]) - 1)
+
+        new_inv = [self.hist_bs[self.hist_bs["year"] == self.hist_bs["year"].max()]['inventories'].values[0]]
+        for x in range(self.future_bs.shape[0]):
+            new_inv.append(new_inv[-1] * (1 + cogs_growth[x]))
+
+        self.future_bs['fut_inventories'] = new_inv[1:]
         

@@ -49,6 +49,9 @@ def main(
 
             model.other_expense_forecast()
             model.stock_based_comp_forecast()
+            model.ar_forecast()
+            model.inventory_forecast()
+
             
 
             a = model.future_income
