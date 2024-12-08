@@ -12,6 +12,9 @@ class FinancialStatementModel:
         self.other = other
         self.future_income = pd.DataFrame()
         self.future_income["year"] = growth_rates["Year"]
+        self.future_income['interest_income'] = 0
+        self.future_income['interest_expense'] = 0
+
         self.hist_bs = hist_bs
         self.future_bs = pd.DataFrame()
         self.future_bs["year"] = growth_rates["Year"]
@@ -186,3 +189,21 @@ class FinancialStatementModel:
             additions.append(new_other_nca[x+1] - new_other_nca[x] + self.future_cf['fut_d_and_a_not_related'].values[x])
 
         self.future_cf['fut_additions'] = additions
+
+    def other_expense_forecast(self):
+        other_expense_value = self.hist_income[self.hist_income["year"] == self.hist_income["year"].max()]["other_expense_net"].values[0]
+        
+        new_other_exp = [other_expense_value for _ in range(self.future_income.shape[0] + 1)]
+
+        self.future_income['fut_other_expense_net'] = new_other_exp[1:]
+
+    def stock_based_comp_forecast(self):
+        new_sbc = [self.hist_cf[self.hist_cf["year"] == self.hist_cf["year"].max()]['stock_based_comp'].values[0]]
+        # print(new_other_nca)
+
+        for x in range(self.future_cf.shape[0]):
+            new_sbc.append(new_sbc[-1] * (1 + self.growth_rates["Revenue growth"].values[x]))
+
+        self.future_cf['fut_stock_based_comp'] = new_sbc[1:]
+        self.future_income['fut_stock_based_comp'] = new_sbc[1:]
+        

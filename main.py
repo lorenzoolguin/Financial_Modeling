@@ -46,10 +46,17 @@ def main(
             model.ppe_forecast(step_percentage=0.02)
             model.deprec_and_amort_forecast()
             model.other_non_current_assets_forecast()
+
+            model.other_expense_forecast()
+            model.stock_based_comp_forecast()
             
 
-            a = model.future_cf
-            print(a)
+            a = model.future_income
+            print(f"Forecasted Income Statement: \n{a}")
+            b = model.future_bs
+            print(f"Forecasted Balance Sheet: \n{b}")
+            c = model.future_cf
+            print(f"Forecasted Cashflow Statement: \n{c}")
 
         case "sensitivity":
             pass
