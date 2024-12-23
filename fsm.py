@@ -233,3 +233,22 @@ class FinancialStatementModel:
 
         self.future_bs['fut_inventories'] = new_inv[1:]
         
+    def accounts_payable_forecast(self):
+        # grows accounts payable in line with cogs growth
+        pass
+
+    def vendor_non_trade_receivables_forecast(self):
+        new_vendor_ntr = [self.hist_bs[self.hist_bs["year"] == self.hist_bs["year"].max()]['vendor_non_trade_receivables'].values[0]]
+
+        for x in range(self.future_bs.shape[0]):
+            new_vendor_ntr.append(new_vendor_ntr[-1] * (1 + self.growth_rates["Revenue growth"].values[x]))
+
+        self.future_bs['fut_vendor_non_trade_receivables'] = new_vendor_ntr[1:]
+
+    def other_current_assets_forecast(self):
+        new_oca = [self.hist_bs[self.hist_bs["year"] == self.hist_bs["year"].max()]['other_current_assets'].values[0]]
+        
+        for x in range(self.future_bs.shape[0]):
+            new_oca.append(new_oca[-1] * (1 + self.growth_rates["Revenue growth"].values[x]))
+
+        self.future_bs['fut_other_current_assets'] = new_oca[1:]

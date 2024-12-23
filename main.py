@@ -51,8 +51,10 @@ def main(
             model.stock_based_comp_forecast()
             model.ar_forecast()
             model.inventory_forecast()
+            model.vendor_non_trade_receivables_forecast()
+            model.other_current_assets_forecast()
 
-            
+
 
             a = model.future_income
             print(f"Forecasted Income Statement: \n{a}")
