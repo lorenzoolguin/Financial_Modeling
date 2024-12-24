@@ -234,8 +234,19 @@ class FinancialStatementModel:
         self.future_bs['fut_inventories'] = new_inv[1:]
         
     def accounts_payable_forecast(self):
-        # grows accounts payable in line with cogs growth
-        pass
+        cogs_val = [self.hist_income[self.hist_income["year"] == self.hist_income["year"].max()]["cost_of_sales_neg"].values[0]]
+        for x in range(self.future_bs.shape[0]):
+            cogs_val.append(self.future_income['fut_Cost_of_Sales'].values[x])
+        
+        cogs_growth= []
+        for x in range(self.future_bs.shape[0]):
+            cogs_growth.append((cogs_val[x+1] / cogs_val[x]) - 1)
+
+        new_ap = [self.hist_bs[self.hist_bs["year"] == self.hist_bs["year"].max()]['accounts_payable'].values[0]]
+        for x in range(self.future_bs.shape[0]):
+            new_ap.append(new_ap[-1] * (1 + cogs_growth[x]))
+        
+        self.future_bs['fut_accounts_payable'] = new_ap[1:]
 
     def vendor_non_trade_receivables_forecast(self):
         new_vendor_ntr = [self.hist_bs[self.hist_bs["year"] == self.hist_bs["year"].max()]['vendor_non_trade_receivables'].values[0]]
@@ -252,3 +263,49 @@ class FinancialStatementModel:
             new_oca.append(new_oca[-1] * (1 + self.growth_rates["Revenue growth"].values[x]))
 
         self.future_bs['fut_other_current_assets'] = new_oca[1:]
+
+    def other_current_liabilities_forecast(self):
+        new_ocl = [self.hist_bs[self.hist_bs["year"] == self.hist_bs["year"].max()]['other_current_liabilities'].values[0]]
+        
+        for x in range(self.future_bs.shape[0]):
+            new_ocl.append(new_ocl[-1] * (1 + self.growth_rates["Revenue growth"].values[x]))
+
+        self.future_bs['fut_other_current_liabilities'] = new_ocl[1:]
+
+    def deferred_rev_forecast(self):
+        new_def_rev = [self.hist_bs[self.hist_bs["year"] == self.hist_bs["year"].max()]['deferred_revenue_current_and_non'].values[0]]
+        
+        for x in range(self.future_bs.shape[0]):
+            new_def_rev.append(new_def_rev[-1] * (1 + self.growth_rates["Revenue growth"].values[x]))
+
+        self.future_bs['fut_deferred_revenue'] = new_def_rev[1:]
+
+    def other_non_current_liabilities_forecast(self):
+        new_oncl = [self.hist_bs[self.hist_bs["year"] == self.hist_bs["year"].max()]['other_non_current_liabilities'].values[0]]
+        
+        for x in range(self.future_bs.shape[0]):
+            new_oncl.append(new_oncl[-1] * (1 + self.growth_rates["Revenue growth"].values[x]))
+
+        self.future_bs['fut_other_non_current_liabilities'] = new_oncl[1:]
+
+    def long_term_debt_forecast(self):
+        long_term_debt_value = self.hist_bs[self.hist_bs["year"] == self.hist_bs["year"].max()]["long_term_debt_incl_current"].values[0]
+        
+        new_other_exp = [long_term_debt_value for _ in range(self.future_income.shape[0] + 1)]
+
+        self.future_bs['fut_long_term_debt'] = new_other_exp[1:]
+
+    def common_stock_forecast(self):
+        new_common_stock = [self.hist_bs[self.hist_bs["year"] == self.hist_bs["year"].max()]['common_stock'].values[0]]
+        
+        for x in self.future_income['fut_stock_based_comp'].values:
+            new_common_stock.append(new_common_stock[-1] + x)
+
+        self.future_bs['fut_common_stock'] = new_common_stock[1:]
+
+    def other_comprehensive_income_forecast(self):
+        other_comp_income = self.hist_bs[self.hist_bs["year"] == self.hist_bs["year"].max()]["other_comp_income"].values[0]
+        
+        new_other_comp_income = [other_comp_income for _ in range(self.future_income.shape[0] + 1)]
+
+        self.future_bs['fut_other_comp_income'] = new_other_comp_income[1:]

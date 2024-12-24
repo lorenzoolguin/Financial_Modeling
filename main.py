@@ -53,6 +53,13 @@ def main(
             model.inventory_forecast()
             model.vendor_non_trade_receivables_forecast()
             model.other_current_assets_forecast()
+            model.accounts_payable_forecast()
+            model.other_current_liabilities_forecast()
+            model.deferred_rev_forecast()
+            model.other_non_current_liabilities_forecast()
+            model.long_term_debt_forecast()
+            model.common_stock_forecast()
+            model.other_comprehensive_income_forecast()
 
 
 
