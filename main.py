@@ -60,11 +60,15 @@ def main(
             model.long_term_debt_forecast()
             model.common_stock_forecast()
             model.other_comprehensive_income_forecast()
+            model.change_in_wc_assets()
+            model.change_in_wc_liabilities()
+            model.change_other_non_current_liabilities()
+            model.change_long_term_debt()
 
 
 
             a = model.future_income
-            print(f"Forecasted Income Statement: \n{a}")
+            print(f"Forecasted Income Statement: \n{a}\n{a.columns}")
             b = model.future_bs
             print(f"Forecasted Balance Sheet: \n{b}")
             c = model.future_cf
